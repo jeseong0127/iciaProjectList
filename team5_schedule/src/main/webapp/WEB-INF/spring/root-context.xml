@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+
+	<bean id="team5" class ="com.zaxxer.hikari.HikariConfig">
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@106.243.194.229:8888:xe"></property>
+		<property name="driverClassName" value="oracle.jdbc.OracleDriver"></property>
+		<property name="username" value="LJS"></property>
+		<property name="password" value="1234"></property>
+	</bean>
+	
+	<bean id="ds" class="com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg ref="team5"></constructor-arg>
+	</bean>
+	
+	<bean id ="mb" class ="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="ds"></property>
+	</bean>
+	
+	<bean id = "dbSession" class ="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="mb"></constructor-arg>
+	</bean>
+	
+	<mybatis-spring:scan base-package="team5.database.mapper"/>
+	
+	<!-- Transaction -->
+	<bean id="transactionManager" class ="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref = "ds"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+	
+	<bean id="javaMail" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+      <property name="host" value="smtp.naver.com" />
+      <property name="port" value="465" />
+      <property name="username" value="mywptjd0127" />
+      <property name="password" value="wptjd951024" />
+      <property name="defaultEncoding" value="utf-8" />
+      <property name="javaMailProperties">
+         <props>
+            <prop key="mail.debug">true</prop>
+            <prop key="mail.smtp.starttls.enable">true</prop>
+            <prop key="mail.smtp.ssl.checkserveridentity">true</prop>
+            <prop key="mail.smtp.auth">true</prop>
+            <prop key="mail.smtps.ssl.trust">*</prop>
+            <prop key="mail.smtp.socketFactory.class">javax.net.ssl.SSLSocketFactory</prop>
+         </props>
+      </property>
+   </bean>
+	
+</beans>
+

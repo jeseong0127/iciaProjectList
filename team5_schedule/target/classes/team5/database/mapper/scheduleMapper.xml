@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <mapper namespace ="team5.database.mapper.scheduleMapper">
+ 
+ 	<insert id="insAlbum" parameterType="team5.controller.bean.ScheduleBean">
+		insert into album values(#{tid},#{num},#{stickerPath})
+	</insert>
+ 	
+ 	<insert id="insSchedule" parameterType="team5.controller.bean.ScheduleBean">
+ 		insert into sd values(#{tid},#{num},#{mbid},#{title},#{date},#{location},#{contents},'B',#{open},#{loop})
+ 	</insert>
+ 	
+ 	<select id="selSeq" resultType="int">
+ 		select SCH_SEQ.NEXTVAL FROM DUAL
+ 	</select>
+ 	
+ 	<select id="getSchedule" parameterType="team5.controller.bean.ScheduleBean" resultType="team5.controller.bean.ScheduleBean">
+ 	select * from  SCHEDULELIST
+	where TO_CHAR("date", 'YYYYMMDD') = #{date}
+                                                    AND "tid" IN (SELECT TD_TID FROM TD WHERE TD_MBID = #{mbid})
+                                                    MINUS
+	SELECT * FROM  SCHEDULELIST
+	WHERE TO_CHAR("date",'YYYYMMDD') = #{date}
+                                                    AND "tid" IN (SELECT TD_TID  FROM TD WHERE TD_MBID = #{mbid})
+                                                    AND ("mbid" != #{mbid} AND "open" = 'N')
+ 	</select>
+ 	
+ </mapper>

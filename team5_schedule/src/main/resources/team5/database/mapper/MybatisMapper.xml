@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace ="team5.database.mapper.MybatisMapper">
+	
+	<select id="getUserPwInfo" parameterType="team5.controller.bean.AccessInfo" resultType="string">
+		select mb_password from mb where mb_id = #{uCode}
+	</select>
+	
+	<select id="isUserId" parameterType="team5.controller.bean.AccessInfo" resultType="int">
+		select count(*) from mb where mb_id = #{uCode}
+	</select>
+	
+	<select id="selMemberInfo" parameterType="team5.controller.bean.AccessInfo" resultType="team5.controller.bean.UserBean">
+		select mb_id as uCode , mb_name as uName, mb_email as uMail, mb_stickerpath as stickerPath from mb where mb_id= #{uCode}
+	</select>
+	
+	<insert id="insAccessHistory" parameterType="team5.controller.bean.AccessInfo">
+		insert into ah(ah_mbid,ah_date,ah_method,ah_publicip,ah_privateip,ah_browser) values (#{uCode}, SYSDATE ,#{method},#{publicIp},#{privateIp},#{browser})
+	</insert>
+	
+	<insert id="insMembers" parameterType="team5.controller.bean.UserBean">
+		insert into mb(mb_id,mb_password,mb_name,mb_email,mb_stickerPath) values(#{uCode},#{aCode},#{uName},#{uMail},#{stickerPath})	
+	</insert>
+	
+	<insert id="insLogOut" parameterType="team5.controller.bean.AccessInfo">
+		insert into ah(ah_mbid,ah_date,ah_method,ah_publicip,ah_privateip,ah_browser) values (#{uCode}, SYSDATE ,#{method},#{publicIp},#{privateIp},#{browser})
+	</insert>
+	
+	<select id="logOutCheck" parameterType="team5.controller.bean.AccessInfo" resultType = "int">
+		select sum(ah_method) from ah where ah_mbid = #{uCode} and ah_browser = #{browser}
+	</select>
+	
+	<select id="browserselect" parameterType="team5.controller.bean.AccessInfo" resultType ="string">
+		select ah_browser from ah where ah_date = (select max(ah_date) from ah where ah_mbid = #{uCode}) and ah_method=1
+	</select>
+	
+	<insert id="insTeamDetail" parameterType="team5.controller.bean.MailBean">
+		insert into td values(#{tid},#{uCode},'G')
+	</insert>
+	
+</mapper>

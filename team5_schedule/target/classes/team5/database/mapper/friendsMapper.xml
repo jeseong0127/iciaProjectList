@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+ PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+ <mapper namespace ="team5.database.mapper.friendsMapper">
+ 	<select id="getTeam" parameterType="team5.controller.bean.TeamBean" resultType="team5.controller.bean.TeamBean">
+ 		select * from TEAMLISTVIEW WHERE MBID= #{mbid}  
+ 	</select>
+ 	
+ 	<select id="getMember" parameterType="team5.controller.bean.TeamDetailBean" resultType="team5.controller.bean.TeamDetailBean">
+ 		select * from MEMBERLISTVIEW where TID = #{tid} ORDER BY cgname DESC
+ 	</select>
+ 	
+ 	<select id="getTeamNumber" resultType="string">
+ 	select max(SUBSTR(T_ID,7,3)) from te where SUBSTR(t_id,1,6) = to_char(sysdate , 'YYMMDD')
+ 	</select>
+ 	
+ 	<insert id="addTeam" parameterType="team5.controller.bean.TeamBean">
+ 		insert into te values(to_char(sysdate,'YYMMDD')||#{tid},#{tname})
+ 	</insert>
+ 	
+ 	<insert id="addTeamDetail" parameterType="team5.controller.bean.TeamBean">
+ 		insert into td values(to_char(sysdate,'YYMMDD')||#{tid},#{mbid},'L')
+ 	</insert>
+ 	
+ 	<select id="getFriends" parameterType="team5.controller.bean.TeamDetailBean" resultType="team5.controller.bean.TeamDetailBean">
+ 		SELECT FR_RECEIVER,
+ 				mb.mb_id as "mbid",
+                mb.mb_name  as "mbname"
+		FROM FR INNER JOIN MB ON FR.FR_RECEIVER = mb.mb_id
+		WHERE FR_REQUEST = #{mbid} AND FR_ACCEPT = 1
+		UNION
+		SELECT FR_REQUEST,
+				mb.mb_id as "mbid",
+                mb.mb_name  as "mbname" 
+		FROM FR INNER JOIN MB ON FR.FR_REQUEST = mb.mb_id
+		WHERE FR_RECEIVER = #{mbid} AND FR_ACCEPT = 1
+ 	</select>
+ 	
+ 	<select id="getFriendsList" parameterType="team5.controller.bean.TeamDetailBean" resultType="team5.controller.bean.TeamDetailBean" >
+ 		SELECT  MB_ID AS "mbid",
+                        MB_NAME AS "mbname",
+                        MB_EMAIL AS "email"
+        FROM MB 
+        WHERE MB_ID NOT IN (SELECT FR_REQUEST FROM FR WHERE FR_RECEIVER = #{mbid} and FR_ACCEPT = 1)
+        AND MB_ID NOT IN (SELECT FR_RECEIVER FROM FR WHERE FR_REQUEST = #{mbid} and FR_ACCEPT = 1)
+        AND MB_ID != #{mbid}
+
+ 	</select>
+ 	
+ 	<select id="friendState" parameterType="team5.controller.bean.FriendState" resultType="team5.controller.bean.FriendState">	
+		SELECT NVL(max(FR_REQUEST),'0') AS mbid2
+		FROM FR
+		WHERE FR_RECEIVER = #{mbid1} and FR_ACCEPT = 0
+ 	</select>
+ 	
+ 	<insert id="inviteFriends" parameterType="team5.controller.bean.FriendState">
+ 		insert into fr values(#{mbid1},#{mbid2},'0')
+ 	</insert>
+ 	
+ </mapper>
